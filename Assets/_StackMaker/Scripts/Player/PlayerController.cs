@@ -35,7 +35,7 @@ public class PlayerController : MonoBehaviour
         _input.GetStartInput(ref _sPoint);
         _input.GetEndInput(ref _ePoint);
 
-        if (_ePoint == Vector2.zero) return Vector2.zero;
+        if (_ePoint == Vector2.zero || _isMove) return Vector2.zero;
 
         //Debug.Log("Start Point: " + _sPoint + " End Point: " + _ePoint);
 
@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 dirNor = GetDirection();
 
-        if (dirNor == Vector2.zero) return;
+        if (dirNor == Vector2.zero || _isMove) return;
 
         Debug.Log("Direction: " + dirNor);
         ResetInput();
