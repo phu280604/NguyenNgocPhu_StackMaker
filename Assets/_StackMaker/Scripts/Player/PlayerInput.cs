@@ -6,9 +6,17 @@ public class PlayerInput : MonoBehaviour
 {
     #region --- Methods ---
 
-    public Vector2 GetStartInput() => !Input.GetMouseButtonDown(0) ? Vector2.zero : Input.mousePosition;
+    public void GetStartInput(ref Vector2 vect)
+    {
+        if (Input.GetMouseButtonDown(0))
+            vect = Input.mousePosition;
+    }
 
-    public Vector2 GetEndInput() => !Input.GetMouseButtonUp(0) ? Vector2.zero : Input.mousePosition;
+    public void GetEndInput(ref Vector2 vect)
+    {
+        if (Input.GetMouseButtonUp(0))
+            vect = Input.mousePosition;
+    }
 
     #endregion
 }
