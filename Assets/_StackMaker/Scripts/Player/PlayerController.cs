@@ -29,6 +29,9 @@ public class PlayerController : MonoBehaviour
     {
         _eDirect = EDirection.NONE;
         _isMove = false;
+
+        Vector3 newPos = GameObject.FindWithTag("StartedBrick").transform.position;
+        transform.position = new Vector3(newPos.x, 0.7f, newPos.z);
     }
 
     // Get the normalized direction vector from input points
@@ -136,7 +139,7 @@ public class PlayerController : MonoBehaviour
     #region --- Fields ---
 
     [Header("--- Const ---")]
-    [SerializeField] private const float BLOCK_DISTANCE = 0.8f;
+    [SerializeField] private const float BLOCK_DISTANCE = 0.5f;
 
     [Header("--- GameObject ---")]
     [SerializeField] private GameObject _goSprite;

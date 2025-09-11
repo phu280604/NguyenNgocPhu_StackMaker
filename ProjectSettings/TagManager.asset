@@ -6,6 +6,8 @@ TagManager:
   tags:
   - NormalBrick
   - BlockedBrick
+  - StartedBrick
+  - GroundBrick
   layers:
   - Default
   - TransparentFX
