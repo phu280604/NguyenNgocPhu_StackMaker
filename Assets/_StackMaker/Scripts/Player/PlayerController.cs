@@ -14,21 +14,24 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         DetermineDirection();
-        MoveHandle();
 
         CheckBrick();
+
+        MoveHandle(); 
     }
 
     #endregion
 
     #region --- Methods ---
 
+    // Initialize variables
     private void OnInit()
     {
         _eDirect = EDirection.NONE;
         _isMove = false;
     }
 
+    // Get the normalized direction vector from input points
     private Vector2 GetDirection()
     {
 
@@ -42,19 +45,21 @@ public class PlayerController : MonoBehaviour
         return (_ePoint - _sPoint).normalized;
     }
 
+    // Reset input points
     private void ResetInput()
     {
         _sPoint = Vector2.zero;
         _ePoint = Vector2.zero;
     }
 
+    // Calculate the direction based on input
     private void CalculateDirection()
     {
         Vector2 dirNor = GetDirection();
 
         if (dirNor == Vector2.zero || _isMove) return;
 
-        Debug.Log("Direction: " + dirNor);
+        //Debug.Log("Direction: " + dirNor);
         ResetInput();
 
         float intX = Mathf.Abs(dirNor.x);
@@ -76,6 +81,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Determine the movement direction based on input
     private void DetermineDirection()
     {
         if (_isMove) return;
@@ -103,11 +109,12 @@ public class PlayerController : MonoBehaviour
             _isMove = true;
     }
 
+    // Check for collision with blocked bricks
     private void CheckBrick()
     {
         RaycastHit hit;
-        Debug.DrawLine(transform.position, transform.position + _moveDir * 0.8f, Color.red);
-        if (!Physics.Raycast(transform.position, _moveDir, out hit, 0.8f)) return;
+        Debug.DrawLine(transform.position, transform.position + _moveDir * BLOCK_DISTANCE, Color.red);
+        if (!Physics.Raycast(transform.position, _moveDir, out hit, BLOCK_DISTANCE)) return;
 
         if(hit.collider.CompareTag("BlockedBrick"))
         {
@@ -116,29 +123,41 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Move the player in the determined direction
     private void MoveHandle()
     {
         if(!_isMove) return;
 
-        transform.Translate(_moveDir * Time.deltaTime * 5f);
+        transform.Translate(_moveDir * Time.deltaTime * _speed);
     }
 
     #endregion
 
     #region --- Fields ---
 
-    [SerializeField] private GameObject _sprite;
+    [Header("--- Const ---")]
+    [SerializeField] private const float BLOCK_DISTANCE = 0.8f;
 
+    [Header("--- GameObject ---")]
+    [SerializeField] private GameObject _goSprite;
+
+    [Header("--- Component ---")]
     [SerializeField] private PlayerInput _input;
 
+    [Header("--- Vector ---")]
     [SerializeField] private Vector2 _sPoint;
     [SerializeField] private Vector2 _ePoint;
 
     [SerializeField] private Vector3 _moveDir;
 
+    [Header("--- Enum ---")]
     private EDirection _eDirect;
 
+    [Header("--- Bool ---")]
     [SerializeField] private bool _isMove;
+
+    [Header("--- Float ---")]
+    [SerializeField] private float _speed;
 
     #endregion
 }
