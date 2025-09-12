@@ -1,8 +1,6 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 public class MapAutoGeneration : MonoBehaviour
 {
@@ -10,17 +8,71 @@ public class MapAutoGeneration : MonoBehaviour
 
     private void Awake()
     {
-        GenerateMap();
+        OnInit();
     }
 
     #endregion
 
     #region --- Methods ---
 
-    private void GenerateMap()
+    private void OnInit()
     {
-        int rows = _mapMatrix.GetLength(0);
-        int cols = _mapMatrix.GetLength(1);
+        _goBrick = new Dictionary<int, List<GameObject>>();
+        GenerateMap();
+    }
+
+    private void OnDeSpawn()
+    {
+        foreach (var item in _goBrick)
+        {
+            var arr = item.Value.ToArray();
+            foreach (var go in arr)
+                Destroy(go);
+            _goBrick[item.Key].Clear();
+        }
+
+    }
+
+    private MapMatrix CheckLevel(int curLvl)
+    {
+        foreach (var item in _data)
+        {
+            if (item.lvl == curLvl)
+                return item;
+        }
+
+        return _data[0];
+    }
+
+    private int HashName(string name)
+    {
+        int hash = 0;
+
+        for (int i = 0; i < name.Length; i++)
+            hash += Convert.ToInt32(name[i]);
+
+        return hash % 100;
+    }
+    private int SpawnHandle(GameObject prefab, Transform parent, Vector3 position, string name, int count = 0)
+    {
+        GameObject goTile = Instantiate(prefab, position, Quaternion.identity, parent);
+
+        int key = HashName(goTile.name);
+        if (_goBrick.ContainsKey(key))
+            _goBrick[key].Add(goTile);
+        else
+            _goBrick[key] = new List<GameObject>() { goTile };
+
+        goTile.name = $"{name} #{_goBrick[key].Count}";
+
+        return count;
+    }
+
+    private void GenerateMap(int curLvl = 1)
+    {
+        MapMatrix map = CheckLevel(curLvl);
+        int rows = map.rows;
+        int cols = map.cols;
 
         int cStarted = 0, cBrick = 0, cBlocked = 0, cGround = 0;
 
@@ -30,7 +82,7 @@ public class MapAutoGeneration : MonoBehaviour
             {
                 Vector3 pos = new Vector3(x, 0, y);
                 cGround = SpawnHandle(_goGround, _goParGround, new Vector3(x, -1, y), "Ground", cGround);
-                switch (_mapMatrix[x, y])
+                switch (map.GetValue(x, y))
                 {
                     case 0:
                         cBlocked = SpawnHandle(_goBlockedBrick, _goParBlockedBrick, pos, "Blocked", cBlocked);
@@ -44,14 +96,6 @@ public class MapAutoGeneration : MonoBehaviour
                 }
             }
         }
-    }
-
-    private int SpawnHandle(GameObject prefab, Transform parent, Vector3 position, string name, int count = 0)
-    {
-        GameObject goTile = Instantiate(prefab, position, Quaternion.identity, parent);
-        goTile.name = $"{name} #{++count}";
-
-        return count;
     }
 
     #endregion
@@ -69,32 +113,10 @@ public class MapAutoGeneration : MonoBehaviour
     [SerializeField] private GameObject _goNormalBrick;
     [SerializeField] private GameObject _goBlockedBrick;
     [SerializeField] private GameObject _goGround;
-    
-    private int[,] _mapMatrix = {
-        {0, 0, 0, 0, 0},
-        {0, 2, 1, 1, 0},
-        {0, 0, 0, 1, 0},
-        {0, 1, 1, 1, 0},
-        {0, 1, 0, 0, 0},
-        {0, 1, 1, 1, 0},
-        {0, 1, 0, 1, 0},
-        {0, 1, 1, 1, 0},
-        {0, 0, 0, 1, 0},
-        {0, 0, 1, 1, 0},
-        {0, 0, 1, 0, 0},
-        {0, 0, 1, 1, 0},
-        {0, 0, 0, 1, 0},
-        {0, 1, 1, 1, 0},
-        {0, 1, 0, 0, 0},
-        {0, 1, 1, 1, 0},
-        {0, 0, 0, 1, 0},
-        {0, 0, 0, 1, 0},
-        {0, 0, 1, 1, 0},
-        {0, 0, 1, 0, 0},
-        {0, 0, 1, 1, 0},
-        {0, 0, 0, 1, 0},
-        {0, 0, 0, 0, 0},
-    };
+
+    [SerializeField] private Dictionary<int, List<GameObject>> _goBrick;
+
+    [SerializeField] private List<MapMatrix> _data;
 
     #endregion
 }
