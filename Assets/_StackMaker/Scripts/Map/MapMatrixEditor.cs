@@ -9,7 +9,7 @@ public class MapMatrixEditor : Editor
         MapMatrix map = (MapMatrix)target;
 
         EditorGUILayout.LabelField("--- Level ---", EditorStyles.boldLabel);
-        EditorGUILayout.IntField("Lvl", map.lvl);
+        map.lvl = EditorGUILayout.IntField("Lvl", map.lvl);
 
         EditorGUILayout.LabelField("--- Rows and Columns ---", EditorStyles.boldLabel);
         map.rows = EditorGUILayout.IntField("Rows", map.rows);

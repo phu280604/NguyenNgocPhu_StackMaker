@@ -15,6 +15,11 @@ public class ObjectFollowing : MonoBehaviour
 
     #region --- Methods ---
 
+    public void SetTarget(Transform target)
+    {
+        _target = target;
+    }
+
     // Make the object follow the target with offset and speed
     private void FollowTarget()
     {

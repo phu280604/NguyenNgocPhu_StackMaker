@@ -119,10 +119,17 @@ public class PlayerController : MonoBehaviour
         Debug.DrawLine(transform.position, transform.position + _moveDir * BLOCK_DISTANCE, Color.red);
         if (!Physics.Raycast(transform.position, _moveDir, out hit, BLOCK_DISTANCE)) return;
 
-        if(hit.collider.CompareTag("BlockedBrick"))
+        switch (hit.collider.tag)
         {
-            _eDirect = EDirection.NONE;
-            _isMove = false;
+            case TagName.BLOCKED_BRICK:
+                _eDirect = EDirection.NONE;
+                _isMove = false;
+                break;
+            case TagName.END_BRICK:
+                _eDirect = EDirection.NONE;
+                _isMove = false;
+                GameManager.Instance.NextLevel();
+                break;
         }
     }
 

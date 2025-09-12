@@ -4,33 +4,31 @@ using UnityEngine;
 
 public class MapAutoGeneration : MonoBehaviour
 {
-    #region --- Unity Methods ---
-
-    private void Awake()
-    {
-        OnInit();
-    }
-
-    #endregion
-
     #region --- Methods ---
 
-    private void OnInit()
+    public void OnInit()
     {
-        _goBrick = new Dictionary<int, List<GameObject>>();
-        GenerateMap();
+        if (_goBricks != null) return;
+        _goBricks = new Dictionary<int, List<GameObject>>();
     }
 
-    private void OnDeSpawn()
+    public void OnDeSpawn()
     {
-        foreach (var item in _goBrick)
+        foreach (var item in _goBricks)
         {
-            var arr = item.Value.ToArray();
-            foreach (var go in arr)
-                Destroy(go);
-            _goBrick[item.Key].Clear();
-        }
+            int highestCount = item.Value.Count;
+            for(int i = highestCount - 1; i >= 0; i--)
+            {
+                GameObject go = item.Value[i];
+                if (go != null)
+                {
+                    item.Value.RemoveAt(i);
+                    Destroy(go);
+                }
+            }
 
+            _goBricks[item.Key].Clear();
+        }
     }
 
     private MapMatrix CheckLevel(int curLvl)
@@ -53,45 +51,48 @@ public class MapAutoGeneration : MonoBehaviour
 
         return hash % 100;
     }
-    private int SpawnHandle(GameObject prefab, Transform parent, Vector3 position, string name, int count = 0)
+    private void SpawnHandle(GameObject prefab, Transform parent, Vector3 position, string name)
     {
         GameObject goTile = Instantiate(prefab, position, Quaternion.identity, parent);
 
         int key = HashName(goTile.name);
-        if (_goBrick.ContainsKey(key))
-            _goBrick[key].Add(goTile);
+        if (_goBricks.ContainsKey(key))
+            _goBricks[key].Add(goTile);
         else
-            _goBrick[key] = new List<GameObject>() { goTile };
+            _goBricks[key] = new List<GameObject>() { goTile };
 
-        goTile.name = $"{name} #{_goBrick[key].Count}";
-
-        return count;
+        goTile.name = $"{name} #{_goBricks[key].Count}";
     }
 
-    private void GenerateMap(int curLvl = 1)
+    public void GenerateMap()
     {
-        MapMatrix map = CheckLevel(curLvl);
+        if(GameManager.Instance.CurrentLevel > _data.Count)
+            GameManager.Instance.ResetLevel();
+
+        MapMatrix map = CheckLevel(GameManager.Instance.CurrentLevel);
         int rows = map.rows;
         int cols = map.cols;
-
-        int cStarted = 0, cBrick = 0, cBlocked = 0, cGround = 0;
 
         for (int x = 0; x < rows; x++)
         {
             for (int y = 0; y < cols; y++)
             {
                 Vector3 pos = new Vector3(x, 0, y);
-                cGround = SpawnHandle(_goGround, _goParGround, new Vector3(x, -1, y), "Ground", cGround);
+                SpawnHandle(_goGround, _goParGround, new Vector3(x, -1, y), "Ground");
                 switch (map.GetValue(x, y))
                 {
                     case 0:
-                        cBlocked = SpawnHandle(_goBlockedBrick, _goParBlockedBrick, pos, "Blocked", cBlocked);
+                        SpawnHandle(_goBlockedBrick, _goParBlockedBrick, pos, "Blocked");
                         break;
                     case 1:
-                        cBrick = SpawnHandle(_goNormalBrick, _goParNormalBrick, pos, "Brick", cBrick);
+                        SpawnHandle(_goNormalBrick, _goParNormalBrick, pos, "Brick");
                         break;
                     case 2:
-                        cStarted = SpawnHandle(_goStartedBrick, _goParStartedBrick, pos, "Started", cStarted);
+                        StartedPos = pos;
+                        SpawnHandle(_goStartedBrick, _goParPointBrick, pos, "Started");
+                        break;
+                    case 3:
+                        SpawnHandle(_goEndBrick, _goParPointBrick, pos, "End");
                         break;
                 }
             }
@@ -100,22 +101,30 @@ public class MapAutoGeneration : MonoBehaviour
 
     #endregion
 
+    #region --- Properties ---
+
+    public Vector3 StartedPos { get; private set; }
+
+    #endregion
+
     #region --- Fields ---
 
     [Header("--- Parent ---")]
-    [SerializeField] private Transform _goParStartedBrick;
+    [SerializeField] private Transform _goParPointBrick;
     [SerializeField] private Transform _goParNormalBrick;
     [SerializeField] private Transform _goParBlockedBrick;
     [SerializeField] private Transform _goParGround;
     
     [Header("--- Brick ---")]
     [SerializeField] private GameObject _goStartedBrick;
+    [SerializeField] private GameObject _goEndBrick;
     [SerializeField] private GameObject _goNormalBrick;
     [SerializeField] private GameObject _goBlockedBrick;
     [SerializeField] private GameObject _goGround;
 
-    [SerializeField] private Dictionary<int, List<GameObject>> _goBrick;
+    private Dictionary<int, List<GameObject>> _goBricks;
 
+    [Header("--- Matrix Data ---")]
     [SerializeField] private List<MapMatrix> _data;
 
     #endregion
