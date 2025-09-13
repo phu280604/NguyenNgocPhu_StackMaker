@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     {
         DetermineDirection();
 
+        ChangeAnimation();
         CheckBrick();
 
         MoveHandle(); 
@@ -28,10 +29,9 @@ public class PlayerController : MonoBehaviour
     private void OnInit()
     {
         _eDirect = EDirection.NONE;
-        _isMove = false;
 
-        Vector3 newPos = GameObject.FindWithTag("StartedBrick").transform.position;
-        transform.position = new Vector3(newPos.x, 0.7f, newPos.z);
+        _isMove = false;
+        _isAdd = false;
     }
 
     // Get the normalized direction vector from input points
@@ -108,8 +108,13 @@ public class PlayerController : MonoBehaviour
                 _moveDir = Vector3.right;
                 break;
         }
+
         if(_eDirect != EDirection.NONE)
+        {
             _isMove = true;
+            Vector3 dir = GetRotation(_eDirect);
+            _rotation.Rotation(dir);
+        }
     }
 
     // Check for collision with blocked bricks
@@ -121,16 +126,48 @@ public class PlayerController : MonoBehaviour
 
         switch (hit.collider.tag)
         {
+            case TagName.NORMAL_BRICK:
+                _isAdd = true;
+                break;
             case TagName.BLOCKED_BRICK:
                 _eDirect = EDirection.NONE;
                 _isMove = false;
+                _isAdd = false;
                 break;
             case TagName.END_BRICK:
                 _eDirect = EDirection.NONE;
                 _isMove = false;
+                _isAdd = false;
                 GameManager.Instance.NextLevel();
                 break;
         }
+    }
+
+    private Vector3 GetRotation(EDirection dir, int angle = 60)
+    {
+        switch (dir)
+        {
+            
+            case EDirection.FORWARD:
+                return Vector3.down * angle * 2;
+            case EDirection.BACKWARD:
+                return Vector3.up * angle;
+            case EDirection.LEFT:
+                return Vector3.up * angle * 2;
+            case EDirection.RIGHT:
+                return Vector3.down * angle;
+        }
+
+        return Vector3.zero;
+    }
+
+    private void ChangeAnimation()
+    {
+        if(_isAdd && !_animator.GetBool(AnimationParaName.JUMP))
+            _animator.SetInteger(AnimationParaName.COLLECTING_PARA, 1);
+        else if(!_isAdd && !_animator.GetBool(AnimationParaName.IDLE))
+            _animator.SetInteger(AnimationParaName.COLLECTING_PARA, 0);
+
     }
 
     // Move the player in the determined direction
@@ -153,6 +190,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("--- Component ---")]
     [SerializeField] private PlayerInput _input;
+    [SerializeField] private PlayerRotation _rotation;
+    [SerializeField] private Animator _animator;
 
     [Header("--- Vector ---")]
     [SerializeField] private Vector2 _sPoint;
@@ -165,6 +204,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("--- Bool ---")]
     [SerializeField] private bool _isMove;
+    private bool _isAdd;
 
     [Header("--- Float ---")]
     [SerializeField] private float _speed;

@@ -11,6 +11,9 @@ public class MapMatrixEditor : Editor
         EditorGUILayout.LabelField("--- Level ---", EditorStyles.boldLabel);
         map.lvl = EditorGUILayout.IntField("Lvl", map.lvl);
 
+        EditorGUILayout.LabelField("--- Direction Map ---", EditorStyles.boldLabel);
+        map.direction = (EDirection)EditorGUILayout.EnumPopup("Direction", map.direction);
+
         EditorGUILayout.LabelField("--- Rows and Columns ---", EditorStyles.boldLabel);
         map.rows = EditorGUILayout.IntField("Rows", map.rows);
         map.cols = EditorGUILayout.IntField("Cols", map.cols);
