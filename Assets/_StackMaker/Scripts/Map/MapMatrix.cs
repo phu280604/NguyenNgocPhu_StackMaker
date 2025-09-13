@@ -4,6 +4,7 @@
 public class MapMatrix : ScriptableObject
 {
     // Ví dụ: lưu map bằng ma trận số nguyên
+    public EDirection direction; // Hướng xây dựng
     public int lvl;
     public int rows;
     public int cols;

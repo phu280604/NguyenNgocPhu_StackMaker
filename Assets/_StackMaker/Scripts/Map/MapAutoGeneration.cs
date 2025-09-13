@@ -70,6 +70,9 @@ public class MapAutoGeneration : MonoBehaviour
             GameManager.Instance.ResetLevel();
 
         MapMatrix map = CheckLevel(GameManager.Instance.CurrentLevel);
+
+        Rotation = map.direction;
+
         int rows = map.rows;
         int cols = map.cols;
 
@@ -78,7 +81,6 @@ public class MapAutoGeneration : MonoBehaviour
             for (int y = 0; y < cols; y++)
             {
                 Vector3 pos = new Vector3(x, 0, y);
-                SpawnHandle(_goGround, _goParGround, new Vector3(x, -1, y), "Ground");
                 switch (map.GetValue(x, y))
                 {
                     case 0:
@@ -86,6 +88,7 @@ public class MapAutoGeneration : MonoBehaviour
                         break;
                     case 1:
                         SpawnHandle(_goNormalBrick, _goParNormalBrick, pos, "Brick");
+                        SpawnHandle(_goGround, _goParGround, new Vector3(x, -1, y), "Ground");
                         break;
                     case 2:
                         StartedPos = pos;
@@ -104,6 +107,7 @@ public class MapAutoGeneration : MonoBehaviour
     #region --- Properties ---
 
     public Vector3 StartedPos { get; private set; }
+    public EDirection Rotation { get; private set; }
 
     #endregion
 
