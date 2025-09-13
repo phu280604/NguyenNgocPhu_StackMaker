@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +21,13 @@ public class GameManager : MonoBehaviour
 
         _lvl = PlayerPrefs.GetInt(PlayerPrefsName.CURRENT_LEVEL, 1);
         StartCoroutine(SetLevel());
+
+        Screen.orientation = ScreenOrientation.Portrait;
+
+        // Nếu muốn cố định, không cho xoay
+        Screen.autorotateToLandscapeLeft = false;
+        Screen.autorotateToLandscapeRight = false;
+        Screen.autorotateToPortraitUpsideDown = false;
     }
 
     private IEnumerator SetLevel()
@@ -32,8 +39,10 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForEndOfFrame();
         _cameraFollowing.SetTarget(LevelManager.Instance.GoPlayer.transform);
+ 
 
         yield return new WaitForEndOfFrame();
+        UIManager.Instance.ShowCurrentLevel(_lvl);
     }
 
     public void ResetLevel()
