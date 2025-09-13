@@ -9,6 +9,7 @@ TagManager:
   - StartedBrick
   - GroundBrick
   - EndBrick
+  - BridgeBrick
   layers:
   - Default
   - TransparentFX

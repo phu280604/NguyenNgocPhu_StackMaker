@@ -20,9 +20,13 @@ public class LevelManager : MonoBehaviour
         if (_goPlayer != null)
             Destroy(_goPlayer);
 
-        Vector3 startedPos = new Vector3(_mapAutoGeneration.StartedPos.x, 0.7f, _mapAutoGeneration.StartedPos.z);
+        Vector3 startedPos = new Vector3(_mapAutoGeneration.GoStarted.transform.position.x, 0.7f, _mapAutoGeneration.GoStarted.transform.position.z);
         _goPlayer = _objectSpawning.SpawnObject(startedPos, Quaternion.identity);
-        _goPlayer.GetComponent<PlayerRotation>().Rotation(_direction);
+
+        PlayerController plCtrl = _goPlayer.GetComponent<PlayerController>();
+
+        plCtrl.RotationComp.Rotation(_direction);
+        plCtrl.CollectBrick(_mapAutoGeneration.GoStarted.GetComponent<CollectingBrick>(), false);
     }
 
     public void SpawnMap()

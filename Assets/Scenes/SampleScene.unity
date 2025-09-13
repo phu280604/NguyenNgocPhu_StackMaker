@@ -185,6 +185,7 @@ Transform:
   m_Children:
   - {fileID: 2124401549}
   - {fileID: 1912241118}
+  - {fileID: 1310207895}
   - {fileID: 601484593}
   - {fileID: 210201523}
   m_Father: {fileID: 1087502760}
@@ -202,7 +203,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _goParPointBrick: {fileID: 2124401549}
-  _goParNormalBrick: {fileID: 1912241118}
+  _goParNormalBrick: {fileID: 1310207895}
+  _goParBridgeBrick: {fileID: 0}
   _goParBlockedBrick: {fileID: 601484593}
   _goParGround: {fileID: 210201523}
   _goStartedBrick: {fileID: 1340806237083007736, guid: 2b230fa499578af4d857f88208c56dd6,
@@ -210,6 +212,8 @@ MonoBehaviour:
   _goEndBrick: {fileID: 1340806237083007736, guid: d350725ce33e4e64eaa95054190728f7,
     type: 3}
   _goNormalBrick: {fileID: 3003410423197515836, guid: a4de666acdb86bd4b916127c95ef7fe1,
+    type: 3}
+  _goBridgeBrick: {fileID: 3003410423197515836, guid: 49e1fe6282a1b21498d92f3d4fbc42f5,
     type: 3}
   _goBlockedBrick: {fileID: 4979632572449007598, guid: e842ea18ab3e44f409eb7f15ea10400c,
     type: 3}
@@ -282,7 +286,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 48
+  field of view: 75
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -372,8 +376,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _target: {fileID: 0}
-  _offset: {x: 0, y: 6, z: -6}
-  _speed: 4
+  _offset: {x: 0, y: 6, z: -5}
+  _speed: 8
 --- !u!1 &393439150
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,6 +685,37 @@ Transform:
   m_Children:
   - {fileID: 1535468069}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1310207894
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1310207895}
+  m_Layer: 0
+  m_Name: BridgeTile
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1310207895
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310207894}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 324223468}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1535468068
 GameObject:

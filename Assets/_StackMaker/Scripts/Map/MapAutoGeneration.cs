@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MapAutoGeneration : MonoBehaviour
@@ -54,6 +55,7 @@ public class MapAutoGeneration : MonoBehaviour
     private void SpawnHandle(GameObject prefab, Transform parent, Vector3 position, string name)
     {
         GameObject goTile = Instantiate(prefab, position, Quaternion.identity, parent);
+        goTile.name = $"{name}";
 
         int key = HashName(goTile.name);
         if (_goBricks.ContainsKey(key))
@@ -83,6 +85,16 @@ public class MapAutoGeneration : MonoBehaviour
                 Vector3 pos = new Vector3(x, 0, y);
                 switch (map.GetValue(x, y))
                 {
+                    case -2:
+                        SpawnHandle(_goEndBrick, _goParPointBrick, pos, "End");
+                        break;
+                    case -1:
+                        SpawnHandle(_goStartedBrick, _goParPointBrick, pos, "Started");
+                        int key = HashName("Started");
+                        GoStarted = _goBricks[key].First();
+
+                        SpawnHandle(_goGround, _goParGround, new Vector3(x, -1, y), "Ground");
+                        break;
                     case 0:
                         SpawnHandle(_goBlockedBrick, _goParBlockedBrick, pos, "Blocked");
                         break;
@@ -91,11 +103,7 @@ public class MapAutoGeneration : MonoBehaviour
                         SpawnHandle(_goGround, _goParGround, new Vector3(x, -1, y), "Ground");
                         break;
                     case 2:
-                        StartedPos = pos;
-                        SpawnHandle(_goStartedBrick, _goParPointBrick, pos, "Started");
-                        break;
-                    case 3:
-                        SpawnHandle(_goEndBrick, _goParPointBrick, pos, "End");
+                        SpawnHandle(_goBridgeBrick, _goParBridgeBrick, new Vector3(x, -0.2f, y), "Brick");
                         break;
                 }
             }
@@ -106,7 +114,7 @@ public class MapAutoGeneration : MonoBehaviour
 
     #region --- Properties ---
 
-    public Vector3 StartedPos { get; private set; }
+    public GameObject GoStarted { get; private set; }
     public EDirection Rotation { get; private set; }
 
     #endregion
@@ -116,6 +124,7 @@ public class MapAutoGeneration : MonoBehaviour
     [Header("--- Parent ---")]
     [SerializeField] private Transform _goParPointBrick;
     [SerializeField] private Transform _goParNormalBrick;
+    [SerializeField] private Transform _goParBridgeBrick;
     [SerializeField] private Transform _goParBlockedBrick;
     [SerializeField] private Transform _goParGround;
     
@@ -123,6 +132,7 @@ public class MapAutoGeneration : MonoBehaviour
     [SerializeField] private GameObject _goStartedBrick;
     [SerializeField] private GameObject _goEndBrick;
     [SerializeField] private GameObject _goNormalBrick;
+    [SerializeField] private GameObject _goBridgeBrick;
     [SerializeField] private GameObject _goBlockedBrick;
     [SerializeField] private GameObject _goGround;
 

@@ -128,6 +128,11 @@ public class PlayerController : MonoBehaviour
         {
             case TagName.NORMAL_BRICK:
                 _isAdd = true;
+                CollectBrick(hit.collider.GetComponent<CollectingBrick>());
+                break;
+            case TagName.BRIDGE_BRICK:
+                _isAdd = false;
+                DecollectBrick(hit.collider.GetComponent<DecollectingBrick>());
                 break;
             case TagName.BLOCKED_BRICK:
                 _eDirect = EDirection.NONE;
@@ -143,11 +148,32 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void CollectBrick(CollectingBrick clBrick, bool isFirst = true)
+    {
+        if (isFirst)
+            _goSprite.transform.position += Vector3.up * 0.2f;
+
+        float newY = _goSprite.transform.position.y - transform.position.y;
+        _listBricks.Add(clBrick.CollectBrick(newY, transform));
+    }
+
+    public void DecollectBrick(DecollectingBrick dclBrick)
+    {
+        dclBrick.DecollectBrick(_listBricks);
+        if(_listBricks.Count <= 0)
+        {
+            _eDirect = EDirection.NONE;
+            _isMove = false;
+            return;
+        }
+
+        _goSprite.transform.position -= Vector3.up * 0.2f;
+    }
+
     private Vector3 GetRotation(EDirection dir, int angle = 60)
     {
         switch (dir)
         {
-            
             case EDirection.FORWARD:
                 return Vector3.down * angle * 2;
             case EDirection.BACKWARD:
@@ -180,6 +206,12 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
+    #region --- Properties ---
+
+    public PlayerRotation RotationComp { get => _rotation; }
+
+    #endregion
+
     #region --- Fields ---
 
     [Header("--- Const ---")]
@@ -201,6 +233,9 @@ public class PlayerController : MonoBehaviour
 
     [Header("--- Enum ---")]
     private EDirection _eDirect;
+
+    [Header("--- GameObjects ---")]
+    [SerializeField] private List<GameObject> _listBricks;
 
     [Header("--- Bool ---")]
     [SerializeField] private bool _isMove;

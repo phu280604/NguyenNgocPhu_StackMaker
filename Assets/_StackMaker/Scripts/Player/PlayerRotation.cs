@@ -8,7 +8,6 @@ public class PlayerRotation : MonoBehaviour
 
     public void Rotation(Vector3 rotation)
     {
-        //Debug.Log("Rotation: " + rotation);
         _trAvatar.rotation = Quaternion.Euler(rotation);
     }
 
