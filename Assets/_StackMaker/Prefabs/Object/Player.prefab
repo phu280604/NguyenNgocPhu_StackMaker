@@ -217,6 +217,8 @@ MonoBehaviour:
   _sPoint: {x: 0, y: 0}
   _ePoint: {x: 0, y: 0}
   _moveDir: {x: 0, y: 0, z: 0}
+  _tarPos: {x: 0, y: 0, z: 0}
+  _listBricks: []
   _isMove: 0
   _speed: 16
 --- !u!114 &63458937343292321
@@ -266,10 +268,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!136 &9035583832907433257
 CapsuleCollider:

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,17 +9,21 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        //Time.timeScale = 0.025f;
         OnInit();
     }
 
-    void Update()
+    private void Update()
     {
         DetermineDirection();
 
         ChangeAnimation();
-        CheckBrick();
+        MoveHandle();
+    }
 
-        MoveHandle(); 
+    private void FixedUpdate()
+    {
+        CheckBrick();
     }
 
     #endregion
@@ -43,8 +48,6 @@ public class PlayerController : MonoBehaviour
 
         if (_ePoint == Vector2.zero || _isMove) return Vector2.zero;
 
-        //Debug.Log("Start Point: " + _sPoint + " End Point: " + _ePoint);
-
         return (_ePoint - _sPoint).normalized;
     }
 
@@ -62,7 +65,6 @@ public class PlayerController : MonoBehaviour
 
         if (dirNor == Vector2.zero || _isMove) return;
 
-        //Debug.Log("Direction: " + dirNor);
         ResetInput();
 
         float intX = Mathf.Abs(dirNor.x);
@@ -120,36 +122,40 @@ public class PlayerController : MonoBehaviour
     // Check for collision with blocked bricks
     private void CheckBrick()
     {
-        RaycastHit hit;
-        Debug.DrawLine(transform.position, transform.position + _moveDir * BLOCK_DISTANCE, Color.red);
-        if (!Physics.Raycast(transform.position, _moveDir, out hit, BLOCK_DISTANCE)) return;
+        if (!_isMove) return;
 
-        switch (hit.collider.tag)
+        RaycastHit hit;
+        if (!Physics.Raycast(transform.position, _moveDir, out hit, BLOCK_DISTANCE) || !_isMove) return;
+
+        if(hit.collider.tag != TagName.BLOCKED_BRICK && hit.collider.tag != TagName.END_BRICK)
         {
-            case TagName.NORMAL_BRICK:
-                _isAdd = true;
-                CollectBrick(hit.collider.GetComponent<CollectingBrick>());
-                break;
-            case TagName.BRIDGE_BRICK:
-                _isAdd = false;
+            _isAdd = hit.collider.tag != TagName.BRIDGE_BRICK;
+            _tarPos = hit.collider.transform.position;
+
+            if(!_isAdd)
                 DecollectBrick(hit.collider.GetComponent<DecollectingBrick>());
-                break;
-            case TagName.BLOCKED_BRICK:
-                _eDirect = EDirection.NONE;
-                _isMove = false;
-                _isAdd = false;
-                break;
-            case TagName.END_BRICK:
-                _eDirect = EDirection.NONE;
-                _isMove = false;
-                _isAdd = false;
-                GameManager.Instance.NextLevel();
-                break;
+            else
+            {
+                CollectingBrick colBrick = hit.collider.GetComponent<CollectingBrick>();
+                _isAdd = !colBrick.IsHide;
+                CollectBrick(colBrick);
+            }
         }
+        else if(hit.collider.tag == TagName.BLOCKED_BRICK)
+        {
+            _eDirect = EDirection.NONE;
+            _isMove = false;
+            _isAdd = false;
+            _tarPos = hit.collider.transform.position - _moveDir;
+        }
+        else
+            GameManager.Instance.NextLevel();
     }
 
     public void CollectBrick(CollectingBrick clBrick, bool isFirst = true)
     {
+        if(clBrick.IsHide) return;
+
         if (isFirst)
             _goSprite.transform.position += Vector3.up * 0.2f;
 
@@ -159,15 +165,17 @@ public class PlayerController : MonoBehaviour
 
     public void DecollectBrick(DecollectingBrick dclBrick)
     {
+        if (dclBrick.IsShow) return;
+
+        _goSprite.transform.position -= Vector3.up * 0.2f;
         dclBrick.DecollectBrick(_listBricks);
+
         if(_listBricks.Count <= 0)
         {
             _eDirect = EDirection.NONE;
             _isMove = false;
             return;
         }
-
-        _goSprite.transform.position -= Vector3.up * 0.2f;
     }
 
     private Vector3 GetRotation(EDirection dir, int angle = 60)
@@ -199,9 +207,10 @@ public class PlayerController : MonoBehaviour
     // Move the player in the determined direction
     private void MoveHandle()
     {
-        if(!_isMove) return;
+        if(!_isMove || _tarPos == Vector3.zero) return;
 
-        transform.Translate(_moveDir * Time.deltaTime * _speed);
+        _tarPos = new Vector3(_tarPos.x, transform.position.y, _tarPos.z);
+        transform.position = Vector3.MoveTowards(transform.position, _tarPos, Time.deltaTime * _speed);
     }
 
     #endregion
@@ -230,6 +239,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Vector2 _ePoint;
 
     [SerializeField] private Vector3 _moveDir;
+    [SerializeField] private Vector3 _tarPos;
 
     [Header("--- Enum ---")]
     private EDirection _eDirect;

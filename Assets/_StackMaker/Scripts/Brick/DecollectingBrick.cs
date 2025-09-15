@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
 public class DecollectingBrick : MonoBehaviour
@@ -8,16 +9,23 @@ public class DecollectingBrick : MonoBehaviour
 
     public void DecollectBrick(List<GameObject> bricks)
     {
-        if(bricks.Count <= 0) return;
+        if(bricks.Count <= 0 || IsShow) return;
 
-        _collider.enabled = false;
+        IsShow = true;
         _spriteRenderer.enabled = true;
 
         GameObject lastBrick = bricks[bricks.Count - 1];
 
+        
+        Destroy(lastBrick);
         bricks.RemoveAt(bricks.Count - 1);
-        lastBrick.SetActive(false);
     }
+
+    #endregion
+
+    #region --- Properties ---
+
+    public bool IsShow { get; private set; }
 
     #endregion
 

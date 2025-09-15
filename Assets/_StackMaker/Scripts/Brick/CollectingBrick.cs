@@ -9,11 +9,20 @@ public class CollectingBrick : MonoBehaviour
     public GameObject CollectBrick(float posY, Transform parent)
     {
         _collider.enabled = false;
-        transform.SetParent(parent);
-        transform.position = new Vector3(parent.position.x, posY, parent.position.z);
-        
-        return gameObject;
+        Vector3 pos = new Vector3(parent.position.x, posY, parent.position.z);
+        GameObject newBrick = Instantiate(this.gameObject, pos, Quaternion.identity, parent);
+        _collider.enabled = true;
+        IsHide = true;
+        _spriteRenderer.enabled = false;
+
+        return newBrick;
     }
+
+    #endregion
+
+    #region --- Properties ---
+
+    public bool IsHide { get; private set; } = false;
 
     #endregion
 
