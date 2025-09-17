@@ -9,9 +9,11 @@ public class UIWining : UICanvas
     public override void OnInit()
     {
         if(!isTrigger)
+        {
             base.OnInit();
-
-        LevelManager.Instance.NextLevel();
+        }
+        else
+            LevelManager.Instance.NextLevel();
 
         LevelManager.Instance.DespawnPlayer();
         LevelManager.Instance.DespawnMap();
