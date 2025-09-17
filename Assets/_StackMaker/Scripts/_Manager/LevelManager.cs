@@ -8,8 +8,8 @@ public class LevelManager : Singleton<LevelManager>
 
     public void OnInit()
     {
-        if(_lvl == 0)
-            _lvl = PlayerPrefs.GetInt(PlayerPrefsName.CURRENT_LEVEL, 1);
+        if (_lvl == 0)
+            _lvl = 1; //PlayerPrefs.GetInt(PlayerPrefsName.CURRENT_LEVEL, 1);
 
         StartCoroutine(SetLevel());
     }
