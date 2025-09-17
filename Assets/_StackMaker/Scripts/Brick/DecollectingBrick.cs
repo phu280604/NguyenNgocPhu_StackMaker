@@ -14,6 +14,8 @@ public class DecollectingBrick : BrickHandler
         // Stop when Under 0 Brick.
         if (bricks.Count <= 0 || IsTriggered) return;
 
+        // Triggered
+        IsTriggered = true;
 
         // Copy Lastest Brick.
         GameObject lastBrick = bricks[bricks.Count - 1];
@@ -21,9 +23,6 @@ public class DecollectingBrick : BrickHandler
         // Destroy & Remove LastestBrick.
         Destroy(lastBrick);
         bricks.RemoveAt(bricks.Count - 1);
-
-        // Triggered
-        IsTriggered = true;
 
         // Open Sprite.
         _spriteRenderer.enabled = true;

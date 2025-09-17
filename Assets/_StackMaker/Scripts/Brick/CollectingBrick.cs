@@ -10,6 +10,11 @@ public class CollectingBrick : BrickHandler
     {
         base.Execute(distance, parent, ref bricks);
 
+        if (IsTriggered) return;
+
+        // Triggered.
+        IsTriggered = true;
+
         // Close Collider.
         _collider.enabled = false;
 
@@ -21,9 +26,6 @@ public class CollectingBrick : BrickHandler
         // Open Collider - Close Sprite.
         _collider.enabled = true;
         _spriteRenderer.enabled = false;
-
-        // Triggered.
-        IsTriggered = true;
     }
 
     #endregion
