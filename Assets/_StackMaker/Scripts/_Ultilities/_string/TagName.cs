@@ -12,4 +12,5 @@ public static class TagName
     public const string BLOCKED_BRICK = "BlockedBrick";
     public const string STARTED_BRICK = "StartedBrick";
     public const string END_BRICK = "EndBrick";
+    public const string TREASURE_BRICK = "TreasureBrick";
 }

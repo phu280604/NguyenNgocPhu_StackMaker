@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
     #region --- Unity Methods ---
 
@@ -17,63 +18,53 @@ public class GameManager : MonoBehaviour
 
     private void OnInit()
     {
-        Instance = this;
-
-        _lvl = PlayerPrefs.GetInt(PlayerPrefsName.CURRENT_LEVEL, 1);
-        StartCoroutine(SetLevel());
-
         Screen.orientation = ScreenOrientation.Portrait;
 
         // Nếu muốn cố định, không cho xoay
         Screen.autorotateToLandscapeLeft = false;
         Screen.autorotateToLandscapeRight = false;
         Screen.autorotateToPortraitUpsideDown = false;
+
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+        Input.multiTouchEnabled = false;
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 0;
+
+        ChangeState(EManagerState.MainMenu);
+        ChangeScreen();
     }
 
-    private IEnumerator SetLevel()
+    public void ChangeState(EManagerState newState)
     {
-        LevelManager.Instance.SpawnMap();
-
-        yield return new WaitForEndOfFrame();
-        LevelManager.Instance.SpawnPlayer();
-
-        yield return new WaitForEndOfFrame();
-        _cameraFollowing.SetTarget(LevelManager.Instance.GoPlayer.transform);
- 
-
-        yield return new WaitForEndOfFrame();
-        UIManager.Instance.ShowCurrentLevel(_lvl);
+        _state = newState;
     }
 
-    public void ResetLevel()
+    public bool IsState(EManagerState state) => _state == state;
+
+    public void ChangeScreen()
     {
-        _lvl = 1;
+        switch (_state)
+        {
+            case EManagerState.MainMenu:
+                UIManager.Instance.OpenUI<UIMainMenu>();
+                if (UIManager.Instance.BackTopUI is UIMainMenu) break;
+
+                UIManager.Instance.PopBackAction();
+                break;
+            case EManagerState.Gameplay:
+                UIManager.Instance.BackTopUI?.CloseDirectly();
+                UIManager.Instance.OpenUI<UIGamePlay>();
+                LevelManager.Instance.OnInit();
+                break;
+        }
     }
-
-    public void NextLevel()
-    {
-        _lvl++;
-        StartCoroutine(SetLevel());
-        PlayerPrefs.SetInt(PlayerPrefsName.CURRENT_LEVEL, _lvl);
-    }
-
-    #endregion
-
-    #region --- Properties ---
-
-    public int CurrentLevel => _lvl;
 
     #endregion 
 
     #region --- Fields ---
 
-    public static GameManager Instance { get; private set; }
-
-    [Header("--- Components ---")]
-    [SerializeField] private ObjectFollowing _cameraFollowing;
-
-    [Header("--- Int ---")]
-    [SerializeField] private int _lvl;
+    private EManagerState _state;
 
     #endregion
 }

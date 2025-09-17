@@ -32,7 +32,7 @@ public class MapMatrixEditor : Editor
             for (int c = 0; c < map.cols; c++)
             {
                 int index = r * map.cols + c;
-                map.data[index] = EditorGUILayout.IntField(map.data[index], GUILayout.Width(20));
+                map.data[index] = EditorGUILayout.IntField(map.data[index], GUILayout.Width(50));
             }
             EditorGUILayout.EndHorizontal();
         }

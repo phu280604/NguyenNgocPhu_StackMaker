@@ -2,23 +2,47 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LevelManager : MonoBehaviour
+public class LevelManager : Singleton<LevelManager>
 {
-    #region --- Unity Methods ---
+    #region --- Methods ---
 
-    private void Awake()
+    public void OnInit()
     {
-        Instance = this;
+        if(_lvl == 0)
+            _lvl = PlayerPrefs.GetInt(PlayerPrefsName.CURRENT_LEVEL, 1);
+
+        StartCoroutine(SetLevel());
     }
 
-    #endregion
+    private IEnumerator SetLevel()
+    {
+        SpawnMap();
 
-    #region --- Methods ---
+        yield return new WaitForEndOfFrame();
+        SpawnPlayer();
+
+        yield return new WaitForEndOfFrame();
+        _cameraFollowing.SetTarget(LevelManager.Instance.GoPlayer.transform);
+        UIManager.Instance.GetUI<UIGamePlay>().ChangeText(_lvl);
+
+        yield return new WaitForEndOfFrame();
+    }
+
+    public void ResetLevel()
+    {
+        _lvl = 1;
+    }
+
+    public void NextLevel()
+    {
+        _lvl++;
+        StartCoroutine(SetLevel());
+        PlayerPrefs.SetInt(PlayerPrefsName.CURRENT_LEVEL, _lvl);
+    }
 
     public void SpawnPlayer()
     {
-        if (_goPlayer != null)
-            Destroy(_goPlayer);
+        DespawnPlayer();
 
         Vector3 startedPos = new Vector3(_mapAutoGeneration.GoStarted.transform.position.x, 0.7f, _mapAutoGeneration.GoStarted.transform.position.z);
         _goPlayer = _objectSpawning.SpawnObject(startedPos, Quaternion.identity);
@@ -29,12 +53,23 @@ public class LevelManager : MonoBehaviour
         plCtrl.CollectBrick(_mapAutoGeneration.GoStarted.GetComponent<CollectingBrick>(), false);
     }
 
+    public void DespawnPlayer()
+    {
+        if (_goPlayer != null)
+            Destroy(_goPlayer);
+    }
+
     public void SpawnMap()
     {
         _mapAutoGeneration.OnInit();
-        _mapAutoGeneration.OnDeSpawn();
+        DespawnMap();
         _mapAutoGeneration.GenerateMap();
         GetRotation(_mapAutoGeneration.Rotation);
+    }
+
+    public void DespawnMap()
+    {
+        _mapAutoGeneration.OnDespawn();
     }
 
     private void GetRotation(EDirection dir, int angle = 60)
@@ -64,16 +99,19 @@ public class LevelManager : MonoBehaviour
     #region --- Properties ---
 
     public GameObject GoPlayer => _goPlayer;
+    public int CurrentLevel => _lvl;
 
     #endregion
 
     #region --- Fields ---
 
-    public static LevelManager Instance { get; private set; }
-
     [Header("--- Components ---")]
     [SerializeField] private ObjectSpawning _objectSpawning;
     [SerializeField] private MapAutoGeneration _mapAutoGeneration;
+    [SerializeField] private ObjectFollowing _cameraFollowing;
+
+    [Header("--- Int ---")]
+    [SerializeField] private int _lvl;
 
     private GameObject _goPlayer;
 

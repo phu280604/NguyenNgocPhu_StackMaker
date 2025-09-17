@@ -13,7 +13,7 @@ public class MapAutoGeneration : MonoBehaviour
         _goBricks = new Dictionary<int, List<GameObject>>();
     }
 
-    public void OnDeSpawn()
+    public void OnDespawn()
     {
         foreach (var item in _goBricks)
         {
@@ -52,31 +52,34 @@ public class MapAutoGeneration : MonoBehaviour
 
         return hash % 100;
     }
-    private void SpawnHandle(GameObject prefab, Transform parent, Vector3 position, string name)
+    private GameObject SpawnHandle(GameObject prefab, Transform parent, Vector3 position, string name)
     {
         GameObject goTile = Instantiate(prefab, position, Quaternion.identity, parent);
-        goTile.name = $"{name}";
 
-        int key = HashName(goTile.name);
+        int key = HashName(name);
         if (_goBricks.ContainsKey(key))
             _goBricks[key].Add(goTile);
         else
             _goBricks[key] = new List<GameObject>() { goTile };
 
         goTile.name = $"{name} #{_goBricks[key].Count}";
+
+        return goTile;
     }
 
     public void GenerateMap()
     {
-        if(GameManager.Instance.CurrentLevel > _data.Count)
-            GameManager.Instance.ResetLevel();
+        if(LevelManager.Instance.CurrentLevel > _data.Count)
+            LevelManager.Instance.ResetLevel();
 
-        MapMatrix map = CheckLevel(GameManager.Instance.CurrentLevel);
+        MapMatrix map = CheckLevel(LevelManager.Instance.CurrentLevel);
 
         Rotation = map.direction;
 
         int rows = map.rows;
         int cols = map.cols;
+
+        int key = 0;
 
         for (int x = 0; x < rows; x++)
         {
@@ -85,25 +88,48 @@ public class MapAutoGeneration : MonoBehaviour
                 Vector3 pos = new Vector3(x, 0, y);
                 switch (map.GetValue(x, y))
                 {
-                    case -2:
+                    case -30:
                         SpawnHandle(_goEndBrick, _goParPointBrick, pos, "End");
                         break;
-                    case -1:
+                    case -15:
                         SpawnHandle(_goStartedBrick, _goParPointBrick, pos, "Started");
-                        int key = HashName("Started");
+                        key = HashName("Started");
                         GoStarted = _goBricks[key].First();
 
                         SpawnHandle(_goGround, _goParGround, new Vector3(x, -1, y), "Ground");
                         break;
-                    case 0:
+                    case 1:
+                        GameObject goBrick = SpawnHandle(_goBlockedBrick, _goParBlockedBrick, pos, "Blocked");
+                        goBrick.GetComponent<BoxCollider>().enabled = false;
+                        break;
+                    case 3:
                         SpawnHandle(_goBlockedBrick, _goParBlockedBrick, pos, "Blocked");
                         break;
-                    case 1:
+                    case 6:
                         SpawnHandle(_goNormalBrick, _goParNormalBrick, pos, "Brick");
                         SpawnHandle(_goGround, _goParGround, new Vector3(x, -1, y), "Ground");
                         break;
-                    case 2:
+                    case 9:
                         SpawnHandle(_goBridgeBrick, _goParBridgeBrick, new Vector3(x, -0.2f, y), "Brick");
+                        break;
+                    case 10:
+                        key = HashName("EndLine");
+                        int num = 0;
+
+                        if (_goBricks.ContainsKey(key))
+                            num = _goBricks[key].Count;
+
+
+                        Vector3 dir = new Vector3(x, 0, y + (2 * num));
+
+                        SpawnHandle(_goEndLine, _goParEndLine, dir, "EndLine");
+                        break;
+                    case 11:
+                        key = HashName("EndLine");
+                        int num1 = _goBricks[key].Count;
+                        Vector3 dir1 = new Vector3(x, 0, y + (2 * num1));
+                        
+                        GameObject obj = SpawnHandle(_goTreasure, _goParTreasure, dir1, "Treasure");
                         break;
                 }
             }
@@ -127,7 +153,9 @@ public class MapAutoGeneration : MonoBehaviour
     [SerializeField] private Transform _goParBridgeBrick;
     [SerializeField] private Transform _goParBlockedBrick;
     [SerializeField] private Transform _goParGround;
-    
+    [SerializeField] private Transform _goParEndLine;
+    [SerializeField] private Transform _goParTreasure; 
+
     [Header("--- Brick ---")]
     [SerializeField] private GameObject _goStartedBrick;
     [SerializeField] private GameObject _goEndBrick;
@@ -135,6 +163,8 @@ public class MapAutoGeneration : MonoBehaviour
     [SerializeField] private GameObject _goBridgeBrick;
     [SerializeField] private GameObject _goBlockedBrick;
     [SerializeField] private GameObject _goGround;
+    [SerializeField] private GameObject _goEndLine;
+    [SerializeField] private GameObject _goTreasure;
 
     private Dictionary<int, List<GameObject>> _goBricks;
 

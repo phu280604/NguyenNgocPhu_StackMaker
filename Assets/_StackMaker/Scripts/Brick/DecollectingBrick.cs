@@ -3,29 +3,31 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 
-public class DecollectingBrick : MonoBehaviour
+public class DecollectingBrick : BrickHandler
 {
-    #region --- Methods ---
+    #region --- Overrides ---
 
-    public void DecollectBrick(List<GameObject> bricks)
+    public override void Execute(ref List<GameObject> bricks)
     {
-        if(bricks.Count <= 0 || IsShow) return;
+        base.Execute(ref bricks);
 
-        IsShow = true;
-        _spriteRenderer.enabled = true;
+        // Stop when Under 0 Brick.
+        if (bricks.Count <= 0 || IsTriggered) return;
 
+
+        // Copy Lastest Brick.
         GameObject lastBrick = bricks[bricks.Count - 1];
 
-        
+        // Destroy & Remove LastestBrick.
         Destroy(lastBrick);
         bricks.RemoveAt(bricks.Count - 1);
+
+        // Triggered
+        IsTriggered = true;
+
+        // Open Sprite.
+        _spriteRenderer.enabled = true;
     }
-
-    #endregion
-
-    #region --- Properties ---
-
-    public bool IsShow { get; private set; }
 
     #endregion
 

@@ -127,48 +127,62 @@ public class PlayerController : MonoBehaviour
         RaycastHit hit;
         if (!Physics.Raycast(transform.position, _moveDir, out hit, BLOCK_DISTANCE) || !_isMove) return;
 
-        if(hit.collider.tag != TagName.BLOCKED_BRICK && hit.collider.tag != TagName.END_BRICK)
+        
+        _isAdd = hit.collider.tag == TagName.NORMAL_BRICK;
+        switch (hit.collider.tag)
         {
-            _isAdd = hit.collider.tag != TagName.BRIDGE_BRICK;
-            _tarPos = hit.collider.transform.position;
+            // Treasure Brick.
+            case TagName.TREASURE_BRICK:
+                hit.collider.GetComponent<BrickHandler>().Execute();
+                break;
 
-            if(!_isAdd)
-                DecollectBrick(hit.collider.GetComponent<DecollectingBrick>());
-            else
-            {
-                CollectingBrick colBrick = hit.collider.GetComponent<CollectingBrick>();
-                _isAdd = !colBrick.IsHide;
+            // End Brick.
+            case TagName.END_BRICK:
+                _speed = 32;
+                break;
+
+            // Bridge Brick.
+            case TagName.BRIDGE_BRICK:
+                DecollectBrick(hit.collider.GetComponent<BrickHandler>());
+                break;
+
+            // Normal Brick.
+            case TagName.NORMAL_BRICK:
+                BrickHandler colBrick = hit.collider.GetComponent<BrickHandler>();
+                _isAdd = !colBrick.IsTriggered;
                 CollectBrick(colBrick);
-            }
+                break;
+
+            // Blocked Brick.
+            case TagName.BLOCKED_BRICK:
+                _eDirect = EDirection.NONE;
+                _isMove = false;
+                _isAdd = false;
+                _tarPos = hit.collider.transform.position - _moveDir;
+                break;
         }
-        else if(hit.collider.tag == TagName.BLOCKED_BRICK)
-        {
-            _eDirect = EDirection.NONE;
-            _isMove = false;
-            _isAdd = false;
-            _tarPos = hit.collider.transform.position - _moveDir;
-        }
-        else
-            GameManager.Instance.NextLevel();
+
+        if(hit.collider.tag != TagName.BLOCKED_BRICK && hit.collider.tag != TagName.TREASURE_BRICK)
+            _tarPos = hit.collider.transform.position;
     }
 
-    public void CollectBrick(CollectingBrick clBrick, bool isFirst = true)
+    public void CollectBrick(BrickHandler clBrick, bool isFirst = true)
     {
-        if(clBrick.IsHide) return;
+        if(clBrick.IsTriggered) return;
 
         if (isFirst)
             _goSprite.transform.position += Vector3.up * 0.2f;
 
         float newY = _goSprite.transform.position.y - transform.position.y;
-        _listBricks.Add(clBrick.CollectBrick(newY, transform));
+        clBrick.Execute(newY, transform, ref _listBricks);
     }
 
-    public void DecollectBrick(DecollectingBrick dclBrick)
+    public void DecollectBrick(BrickHandler dclBrick)
     {
-        if (dclBrick.IsShow) return;
+        if (dclBrick.IsTriggered) return;
 
         _goSprite.transform.position -= Vector3.up * 0.2f;
-        dclBrick.DecollectBrick(_listBricks);
+        dclBrick.Execute(ref _listBricks);
 
         if(_listBricks.Count <= 0)
         {
@@ -244,15 +258,17 @@ public class PlayerController : MonoBehaviour
     [Header("--- Enum ---")]
     private EDirection _eDirect;
 
-    [Header("--- GameObjects ---")]
-    [SerializeField] private List<GameObject> _listBricks;
-
     [Header("--- Bool ---")]
     [SerializeField] private bool _isMove;
     private bool _isAdd;
 
     [Header("--- Float ---")]
     [SerializeField] private float _speed;
+
+    [Header("--- GameObjects ---")]
+    [SerializeField] private List<GameObject> _listBricks;
+
+    
 
     #endregion
 }
