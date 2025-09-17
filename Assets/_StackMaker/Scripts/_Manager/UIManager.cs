@@ -92,7 +92,6 @@ public class UIManager : Singleton<UIManager>
         {
             BackActionEvents[BackTopUI]?.Invoke();
             UICanvas preTopUI =  BackTopUI;
-
             BackActionEvents.Remove(BackTopUI);
             RemoveBackUI(BackTopUI);
 

@@ -15,6 +15,8 @@ public class MapAutoGeneration : MonoBehaviour
 
     public void OnDespawn()
     {
+        if(_goBricks == null || _goBricks.Count <= 0) return;
+
         foreach (var item in _goBricks)
         {
             int highestCount = item.Value.Count;
@@ -126,7 +128,7 @@ public class MapAutoGeneration : MonoBehaviour
                         break;
                     case 11:
                         key = HashName("EndLine");
-                        int num1 = _goBricks[key].Count;
+                        int num1 = _goBricks.ContainsKey(key) ? _goBricks[key].Count : 0;
                         Vector3 dir1 = new Vector3(x, 0, y + (2 * num1));
                         
                         GameObject obj = SpawnHandle(_goTreasure, _goParTreasure, dir1, "Treasure");

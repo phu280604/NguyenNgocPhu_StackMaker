@@ -36,14 +36,12 @@ public class LevelManager : Singleton<LevelManager>
     public void NextLevel()
     {
         _lvl++;
-        StartCoroutine(SetLevel());
         PlayerPrefs.SetInt(PlayerPrefsName.CURRENT_LEVEL, _lvl);
     }
 
     public void SpawnPlayer()
     {
         DespawnPlayer();
-
         Vector3 startedPos = new Vector3(_mapAutoGeneration.GoStarted.transform.position.x, 0.7f, _mapAutoGeneration.GoStarted.transform.position.z);
         _goPlayer = _objectSpawning.SpawnObject(startedPos, Quaternion.identity);
 

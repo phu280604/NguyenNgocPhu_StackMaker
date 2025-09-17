@@ -6,4 +6,5 @@ public enum EManagerState
 {
     MainMenu,
     Gameplay,
+    Wining,
 }

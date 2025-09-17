@@ -51,11 +51,16 @@ public class GameManager : Singleton<GameManager>
                 if (UIManager.Instance.BackTopUI is UIMainMenu) break;
 
                 UIManager.Instance.PopBackAction();
+                ChangeScreen();
                 break;
             case EManagerState.Gameplay:
                 UIManager.Instance.BackTopUI?.CloseDirectly();
                 UIManager.Instance.OpenUI<UIGamePlay>();
                 LevelManager.Instance.OnInit();
+                break;
+            case EManagerState.Wining:
+                UIWining ui = UIManager.Instance.OpenUI<UIWining>();
+                ui.OnInit();
                 break;
         }
     }

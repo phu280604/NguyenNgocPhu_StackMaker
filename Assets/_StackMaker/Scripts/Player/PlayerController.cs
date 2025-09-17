@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
 
         _isMove = false;
         _isAdd = false;
+        _isFinish = false;
     }
 
     // Get the normalized direction vector from input points
@@ -134,6 +135,11 @@ public class PlayerController : MonoBehaviour
             // Treasure Brick.
             case TagName.TREASURE_BRICK:
                 hit.collider.GetComponent<BrickHandler>().Execute();
+
+                _isFinish = true;
+                ChangeAnimation();
+
+                Invoke(nameof(OpenScreen), 2f);
                 break;
 
             // End Brick.
@@ -215,6 +221,10 @@ public class PlayerController : MonoBehaviour
             _animator.SetInteger(AnimationParaName.COLLECTING_PARA, 1);
         else if(!_isAdd && !_animator.GetBool(AnimationParaName.IDLE))
             _animator.SetInteger(AnimationParaName.COLLECTING_PARA, 0);
+        else if(_isFinish)
+        {
+            _animator.SetInteger(AnimationParaName.COLLECTING_PARA, 2);
+        }
 
     }
 
@@ -225,6 +235,12 @@ public class PlayerController : MonoBehaviour
 
         _tarPos = new Vector3(_tarPos.x, transform.position.y, _tarPos.z);
         transform.position = Vector3.MoveTowards(transform.position, _tarPos, Time.deltaTime * _speed);
+    }
+
+    private void OpenScreen()
+    {
+        GameManager.Instance.ChangeState(EManagerState.Wining);
+        GameManager.Instance.ChangeScreen();
     }
 
     #endregion
@@ -261,6 +277,7 @@ public class PlayerController : MonoBehaviour
     [Header("--- Bool ---")]
     [SerializeField] private bool _isMove;
     private bool _isAdd;
+    private bool _isFinish;
 
     [Header("--- Float ---")]
     [SerializeField] private float _speed;

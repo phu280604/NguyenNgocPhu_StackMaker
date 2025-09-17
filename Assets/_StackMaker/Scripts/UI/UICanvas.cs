@@ -16,7 +16,7 @@ public class UICanvas : MonoBehaviour
 
     #region --- Methods ---
 
-    protected virtual void OnInit()
+    public virtual void OnInit()
     {
         _rectTransform = GetComponent<RectTransform>();
 
@@ -31,7 +31,7 @@ public class UICanvas : MonoBehaviour
                 _rectTransform.offsetMax = rightTop;
                 leftBottom.y = 0f;
                 _rectTransform.offsetMin = leftBottom;
-                _offsetY = 100f;
+                //_offsetY = 100f;
             }
         }
 
@@ -91,9 +91,9 @@ public class UICanvas : MonoBehaviour
 
     protected RectTransform _rectTransform;
 
-    private Animator _animator;
+    //private Animator _animator;
 
-    private float _offsetY = 0f;
+    //private float _offsetY = 0f;
 
     #endregion
 }
